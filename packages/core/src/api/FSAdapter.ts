@@ -1,0 +1,124 @@
+import axios, { AxiosInstance } from "axios";
+import { logger } from "../utils/logger";
+import { sanitizeAndEncodeFSQuery } from "../utils/utils";
+
+export interface FSTicket {
+  id: number;
+  subject: string;
+  type?: string;
+  description?: string;
+  description_text?: string;
+  category?: string;
+  requester_id?: number;
+  responder_id?: number;
+  custom_fields?: Record<string, any>;
+}
+
+export class FSAdapter {
+  static client: AxiosInstance;
+  private static instance: FSAdapter;
+  private domain: string;
+  private apiKey: string;
+  private apiKeyBase64: string;
+  private FS_FETCH_URL: string = "";
+
+  private constructor(domain: string, apiKey: string) {
+    this.domain = domain;
+    this.apiKey = apiKey;
+    this.apiKeyBase64 = Buffer.from(`${this.apiKey}:X`).toString("base64");
+
+    FSAdapter.client = axios.create({
+      baseURL: `https://${this.domain}`,
+      headers: {
+        Authorization: `Basic ${this.apiKeyBase64}`,
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  static getInstance(): FSAdapter {
+    if (!process.env.FS_API_KEY || !process.env.FS_DOMAIN) {
+      throw new Error(
+        "FS_API_KEY or FS_DOMAIN environment variable is not set."
+      );
+    }
+
+    if (!this.client) {
+      logger.info("Creating Freshservice Adapter instance");
+      const domain = process.env.FS_DOMAIN;
+      const apiKey = process.env.FS_API_KEY;
+      this.instance = new FSAdapter(domain, apiKey);
+    }
+    return this.instance;
+  }
+
+  setFsFetchUrl(url: string) {
+    this.FS_FETCH_URL = url;
+  }
+
+  async fetchTickets(
+    page: number = 1,
+    perPage: number = 100
+  ): Promise<FSTicket[]> {
+    logger.info(
+      `Fetching tickets from Freshservice: Page ${page}, Per Page: ${perPage}`
+    );
+    logger.debug(`Domain URL: ${this.domain}`);
+    logger.debug(`API Key Base64: ${this.apiKeyBase64}`);
+    logger.debug(`Using Fetch URL: ${this.FS_FETCH_URL}`);
+
+    try {
+      const encodedQuery = sanitizeAndEncodeFSQuery(this.FS_FETCH_URL);
+      const fetchUrl = `/api/v2/tickets/filter?page=${page}&per_page=${perPage}&query=${encodedQuery}`;
+
+      const response = await FSAdapter.client.get(fetchUrl);
+
+      const tickets = response.data?.tickets || [];
+
+      logger.debug(
+        `Fetched tickets page ${page} with ${tickets.length} tickets.`,
+        {
+          tickets: tickets,
+        }
+      );
+
+      return tickets;
+    } catch (error) {
+      const err = error as Error;
+      console.error(error);
+
+      logger.error("Error fetching tickets:", {
+        message: err.message,
+      });
+      throw error;
+    }
+  }
+
+  async getTicketById(ticketId: number): Promise<FSTicket> {
+    try {
+      const response = await FSAdapter.client.get(
+        `/api/v2/tickets/${ticketId}?include=tags,requester,department`
+      );
+      return response.data?.ticket;
+    } catch (error) {
+      logger.error(`Error fetching ticket with ID ${ticketId}:`, error);
+      throw error;
+    }
+  }
+
+  async updateTicket(
+    ticketId: number,
+    updateData: Partial<FSTicket>
+  ): Promise<FSTicket> {
+    try {
+      const response = await FSAdapter.client.put(
+        `/api/v2/tickets/${ticketId}`,
+        updateData
+      );
+      return response.data;
+    } catch (error) {
+      logger.error(`Error updating ticket with ID ${ticketId}:`, error);
+      throw error;
+    }
+  }
+}

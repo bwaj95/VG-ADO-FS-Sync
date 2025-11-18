@@ -1,0 +1,27 @@
+{
+  "name": "@repo/common",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "winston": "^3.18.3",
+    "xlsx": "^0.18.5",
+    "zod": "4.1.11"
+  },
+  "exports": {
+    "./types": "./src/types.ts",
+    "./config": "./src/config.ts"
+  }
+}
