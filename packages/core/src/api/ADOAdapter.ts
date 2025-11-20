@@ -26,6 +26,11 @@ function makeError(message: string, status?: number, data?: any): ApiError {
   return err;
 }
 
+export interface ADOAttachmentUploadResult {
+  id: string;
+  url: string;
+}
+
 /**
  * Azure DevOps Adapter - Singleton Class
  * Handles authentication and all ADO API calls.
@@ -93,11 +98,135 @@ export class ADOAdapter {
     }
   }
 
-  public async updateBug(id: number, patch: any[]) {
-    return this.client.patch(`/wit/workitems/${id}?api-version=7.1`, patch);
+  public async updateBug(id: number, patch: PatchOperation[]) {
+    try {
+      const response = await this.client.patch(
+        `/wit/workitems/${id}?api-version=7.1`,
+        patch
+      );
+      return response.data as WorkItem;
+    } catch (error) {
+      const err = error as any;
+      throw makeError(
+        `Failed to update ADO bug ID ${id}`,
+        err?.response?.status,
+        err?.response?.data ?? err?.message
+      );
+    }
   }
 
   public async queryWiql(query: string) {
-    return this.client.post("/wit/wiql?api-version=7.1", { query });
+    try {
+      const response = await this.client.post("/wit/wiql?api-version=7.1", {
+        query,
+      });
+      return response.data;
+    } catch (error) {
+      const err = error as any;
+      throw makeError(
+        "Failed to execute WIQL query",
+        err?.response?.status,
+        err?.response?.data ?? err?.message
+      );
+    }
+  }
+
+  // =====================================================
+  //  ATTACHMENT API — Upload & Attach
+  // =====================================================
+
+  /**
+   * Upload attachment to ADO (binary file)
+   */
+  public async uploadAttachment(
+    fileName: string,
+    contentType: string,
+    buffer: Buffer
+  ): Promise<ADOAttachmentUploadResult> {
+    try {
+      const url = `/wit/attachments?fileName=${encodeURIComponent(
+        fileName
+      )}&api-version=7.1-preview.1`;
+
+      const res = await this.client.post(url, buffer, {
+        headers: {
+          "Content-Type": contentType || "application/octet-stream",
+        },
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+      });
+
+      return {
+        id: res.data.id,
+        url: res.data.url,
+      };
+    } catch (err: any) {
+      throw makeError(
+        `Failed to upload attachment ${fileName}`,
+        err?.response?.status,
+        err?.response?.data ?? err?.message
+      );
+    }
+  }
+
+  /**
+   * Link an uploaded attachment to a Work Item
+   */
+  public async attachToWorkItem(
+    workItemId: number,
+    attachmentUrl: string,
+    comment: string = "Imported from Freshservice"
+  ): Promise<any> {
+    const patch: PatchOperation[] = [
+      {
+        op: "add",
+        path: "/relations/-",
+        value: {
+          rel: "AttachedFile",
+          url: attachmentUrl,
+          attributes: { comment },
+        },
+      },
+    ];
+
+    return this.updateBug(workItemId, patch);
+  }
+
+  // =====================================================
+  //  Helper: Create Bug + Upload & Attach Multiple Files
+  // =====================================================
+
+  /**
+   * Creates a bug AND attaches files (if any).
+   * `attachments` = array of { fileName, buffer, contentType }
+   */
+  public async createBugWithAttachments(options: {
+    patch: PatchOperation[];
+    attachments?: {
+      fileName: string;
+      buffer: Buffer;
+      contentType: string;
+    }[];
+  }): Promise<WorkItem> {
+    // Step 1 — create bug
+    const bug = await this.createBug({ patch: options.patch });
+
+    // No attachments → return immediately
+    if (!options.attachments || options.attachments.length === 0) {
+      return bug;
+    }
+
+    // Step 2 — upload + link each attachment
+    for (const file of options.attachments) {
+      const upload = await this.uploadAttachment(
+        file.fileName,
+        file.contentType,
+        file.buffer
+      );
+
+      await this.attachToWorkItem(bug.id, upload.url);
+    }
+
+    return bug;
   }
 }

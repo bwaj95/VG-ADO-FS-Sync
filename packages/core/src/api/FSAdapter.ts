@@ -12,6 +12,25 @@ export interface FSTicket {
   requester_id?: number;
   responder_id?: number;
   custom_fields?: Record<string, any>;
+  requester?: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  attachments?: {
+    id: number;
+    name: string;
+    attachment_url: string;
+    content_type: string;
+  }[];
+}
+
+export interface FSAgent {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  job_title: string;
 }
 
 export class FSAdapter {
@@ -118,6 +137,16 @@ export class FSAdapter {
       return response.data;
     } catch (error) {
       logger.error(`Error updating ticket with ID ${ticketId}:`, error);
+      throw error;
+    }
+  }
+
+  async getAgentById(agentId: number): Promise<FSAgent> {
+    try {
+      const response = await FSAdapter.client.get(`/api/v2/agents/${agentId}`);
+      return response.data?.agent;
+    } catch (error) {
+      logger.error(`Error fetching agent with ID ${agentId}:`, error);
       throw error;
     }
   }
