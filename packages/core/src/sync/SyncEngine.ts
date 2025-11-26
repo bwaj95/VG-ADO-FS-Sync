@@ -9,7 +9,7 @@ import {
   SingleFieldMappingRecord,
 } from "../types/schema";
 import { FileReader } from "../utils/FileReader";
-import { logger } from "../utils/logger";
+import { logger, errorLogger } from "../utils/logger";
 import { ReportManager } from "../utils/ReportManager";
 import { stringifyMultiSelectFS } from "../utils/utils";
 
@@ -97,7 +97,9 @@ export class SyncEngine {
 
       logger.info("✅ FS ↔ ADO Sync Engine run completed.");
     } catch (error) {
-      logger.error(`[SyncEngine] Error occurred: ${(error as Error)?.message}`);
+      errorLogger.error(
+        `[SyncEngine] Error occurred: ${(error as Error)?.message}`
+      );
       this.reportManager.error(
         "SyncEngine - run",
         `Error in sync run: ${(error as Error).message}`,
@@ -114,7 +116,7 @@ export class SyncEngine {
 
       await Promise.all(promises);
     } catch (error) {
-      logger.error("[SyncEngine] - Error processing ticket batch:", {
+      errorLogger.error("[SyncEngine] - Error processing ticket batch:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -132,7 +134,7 @@ export class SyncEngine {
       if (!ticket.custom_fields?.source_control_reference) {
         const adoBug = await this.handleCreateADOBug(ticket);
         if (!adoBug || !adoBug.id) {
-          logger.error(
+          errorLogger.error(
             `Failed to create ADO Bug for FS Ticket ID: ${ticket.id}`
           );
           return;
@@ -161,10 +163,13 @@ export class SyncEngine {
         );
       }
     } catch (error) {
-      logger.error(`[SyncEngine] - Error processing ticket: ${ticket.id}`, {
-        message: (error as Error).message,
-        stack: (error as Error).stack,
-      });
+      errorLogger.error(
+        `[SyncEngine] - Error processing ticket: ${ticket.id}`,
+        {
+          message: (error as Error).message,
+          stack: (error as Error).stack,
+        }
+      );
       this.reportManager.error(
         "SyncEngine - processTicket",
         `Error processing ticket ID ${ticket.id}: ${(error as Error).message}`,
@@ -259,7 +264,7 @@ export class SyncEngine {
 
       return adoBug;
     } catch (error) {
-      logger.error("Error in handle create ADO Bug from FS Ticket:", {
+      errorLogger.error("Error in handle create ADO Bug from FS Ticket:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -296,7 +301,7 @@ export class SyncEngine {
         updateBody
       );
     } catch (error) {
-      logger.error("Error in handle FS Ticket update from ADO Bug:", {
+      errorLogger.error("Error in handle FS Ticket update from ADO Bug:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -345,7 +350,7 @@ export class SyncEngine {
 
       return adoPatchData;
     } catch (error) {
-      logger.error("Error building FS to ADO single fields:", {
+      errorLogger.error("Error building FS to ADO single fields:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -406,7 +411,7 @@ export class SyncEngine {
 
       return [adoPatchEntry];
     } catch (error) {
-      logger.error("Error building FS to ADO repo fields:", {
+      errorLogger.error("Error building FS to ADO repo fields:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -487,7 +492,7 @@ export class SyncEngine {
 
       return adoPatchData;
     } catch (error) {
-      logger.error("Error building FS to ADO product fields:", {
+      errorLogger.error("Error building FS to ADO product fields:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -528,7 +533,7 @@ export class SyncEngine {
 
       return adoPatchData;
     } catch (error) {
-      logger.error("Error building FS to ADO agent fields:", {
+      errorLogger.error("Error building FS to ADO agent fields:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -563,7 +568,7 @@ export class SyncEngine {
       }
       return adoPatchData;
     } catch (error) {
-      logger.error("Error building FS to ADO requester fields:", {
+      errorLogger.error("Error building FS to ADO requester fields:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -621,7 +626,7 @@ export class SyncEngine {
 
       return updateBody;
     } catch (error) {
-      logger.error("Error building update body FS from ADO Bug:", {
+      errorLogger.error("Error building update body FS from ADO Bug:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });
@@ -672,7 +677,7 @@ export class SyncEngine {
         `✅ Completed uploading and attaching ${attachments.length} files for FS Ticket ID: ${ticket.id}`
       );
     } catch (error) {
-      logger.error(
+      errorLogger.error(
         `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
         {
           message: (error as Error).message,

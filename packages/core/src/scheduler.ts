@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import { logger } from "./utils/logger";
+import { logger, errorLogger } from "./utils/logger";
 import path from "path";
 import { FileReader } from "./utils/FileReader";
 import { SyncEngine } from "./sync/SyncEngine";
@@ -46,7 +46,7 @@ export const startScheduler = async () => {
       const reportsFile = await ExcelReportGenerator.generateReportFile();
       logger.info(`Generated report file at: ${reportsFile}`);
     } catch (error) {
-      logger.error("Error occurred while starting the scheduler:", {
+      errorLogger.error("Error occurred while starting the scheduler:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
       });

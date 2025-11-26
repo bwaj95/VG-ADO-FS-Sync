@@ -1,6 +1,6 @@
 import type { sheetsDataType } from "../types/schema.js";
 import { readExcelFile } from "../utils/excelReader.js";
-import { logger } from "./logger.js";
+import { logger, errorLogger } from "./logger.js";
 
 const EXCEL_FILE_NAME = process.env.MAPPING_EXCEL_FILE || "VG-FS-ADO-Sync.xlsx";
 
@@ -49,7 +49,7 @@ export class FileReader {
 
       return this;
     } catch (error) {
-      logger.error("Error reading Excel file in FileReader:", error);
+      errorLogger.error("Error reading Excel file in FileReader:", error);
       return this;
     }
   }

@@ -1,4 +1,4 @@
-import { logger, startScheduler } from "@repo/core";
+import { logger, startScheduler, errorLogger } from "@repo/core";
 import { loadEnv } from "./config/env";
 
 const main = async () => {
@@ -8,7 +8,7 @@ const main = async () => {
     logger.info("🚀 Starting ADO Devops ↔ Freshservice Sync Scheduler...");
     await startScheduler();
   } catch (err) {
-    logger.error("Fatal error starting scheduler", { error: err });
+    errorLogger.error("Fatal error starting scheduler", { error: err });
   }
 };
 

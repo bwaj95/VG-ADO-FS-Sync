@@ -17,7 +17,7 @@ import type {
   sheetsDataType,
   URLMappingRecord,
 } from "../types/schema.js";
-import { logger } from "./logger.js";
+import { logger, errorLogger } from "./logger.js";
 import { parse, z } from "zod";
 
 const requiredSheetNames = [
@@ -77,7 +77,7 @@ export function readExcelFile(filePath: string): sheetsDataType {
 
     return sheetsData;
   } catch (error) {
-    logger.error("Failed to read Excel file", { error });
+    errorLogger.error("Failed to read Excel file", { error });
     throw error;
   }
 }
@@ -126,7 +126,9 @@ const parseSingleFieldSheet = (
     logger.debug("SingleField Mapping records:", { records });
     return records;
   } catch (error) {
-    logger.error("Failed to read SingleField sheet from Excel file", { error });
+    errorLogger.error("Failed to read SingleField sheet from Excel file", {
+      error,
+    });
     throw error;
   }
 };
@@ -176,7 +178,7 @@ const parseRepoSheet = (workbook: XLSX.WorkBook): RepoMappingRecord[] => {
     logger.debug("Repo Mapping records:", { records });
     return records;
   } catch (error) {
-    logger.error("Failed to read Repo sheet from Excel file", { error });
+    errorLogger.error("Failed to read Repo sheet from Excel file", { error });
     throw error;
   }
 };
@@ -216,7 +218,7 @@ const parseQuerySheet = (workbook: XLSX.WorkBook): QueryMappingRecord[] => {
     logger.debug("Query Mapping records:", { records });
     return records;
   } catch (error) {
-    logger.error("Failed to read Query sheet from Excel file", { error });
+    errorLogger.error("Failed to read Query sheet from Excel file", { error });
     throw error;
   }
 };
@@ -248,7 +250,7 @@ const parseURLSheet = (workbook: XLSX.WorkBook): URLMappingRecord[] => {
     logger.debug("URL Mapping records:", { records });
     return records;
   } catch (error) {
-    logger.error("Failed to read URL sheet from Excel file", { error });
+    errorLogger.error("Failed to read URL sheet from Excel file", { error });
     throw error;
   }
 };
@@ -283,7 +285,7 @@ const parseProductsFieldsSheet = (
     logger.debug("ProductField Mapping records:", { records });
     return records;
   } catch (error) {
-    logger.error("Failed to read ProductsFields sheet from Excel file", {
+    errorLogger.error("Failed to read ProductsFields sheet from Excel file", {
       error,
     });
     throw error;
@@ -325,7 +327,7 @@ const parseProductsDataSheet = (
     logger.debug("ProductsData Mapping records:", { records });
     return records;
   } catch (error) {
-    logger.error("Failed to read ProductsData sheet from Excel file", {
+    errorLogger.error("Failed to read ProductsData sheet from Excel file", {
       error,
     });
     throw error;
