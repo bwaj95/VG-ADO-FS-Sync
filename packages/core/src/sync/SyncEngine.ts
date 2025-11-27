@@ -587,6 +587,11 @@ export class SyncEngine {
     try {
       const updateBody: Record<string, any> = { custom_fields: {} };
 
+      if (process.env.FS_FIELD_FOR_ADO_BUG_ID) {
+        const idKey = process.env.FS_FIELD_FOR_ADO_BUG_ID;
+        updateBody.custom_fields[idKey] = adoBug.id;
+      }
+
       if (!this.adoToFsMappings || this.adoToFsMappings.length === 0) {
         logger.warn("ADO to FS mappings are not initialized or empty.");
         return updateBody;
