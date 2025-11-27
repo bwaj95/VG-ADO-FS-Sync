@@ -1,5 +1,5 @@
 import { PatchOperation } from "../api/types.js";
-import { logger } from "./logger.js";
+import { logger, errorLogger } from "./logger.js";
 
 export interface ReportEntry {
   timestamp: Date;
@@ -138,7 +138,10 @@ export class ReportManager {
     }
 
     this.logs.errors.push(obj);
-    logger.error(`[Report] ${operation} - ${message}`, JSON.stringify(obj));
+    errorLogger.error(
+      `[Report] ${operation} - ${message}`,
+      JSON.stringify(obj)
+    );
   }
 
   addRaw(type: "info" | "warnings" | "errors", data: any) {
