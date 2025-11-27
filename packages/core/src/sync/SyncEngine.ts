@@ -117,8 +117,8 @@ export class SyncEngine {
       await Promise.all(promises);
     } catch (error) {
       errorLogger.error("[SyncEngine] - Error processing ticket batch:", {
-        message: (error as Error).message,
-        stack: (error as Error).stack,
+        message: JSON.stringify((error as Error).message),
+        stack: JSON.stringify((error as Error).stack),
       });
       this.reportManager.error(
         "SyncEngine - processBatch",
@@ -166,8 +166,8 @@ export class SyncEngine {
       errorLogger.error(
         `[SyncEngine] - Error processing ticket: ${ticket.id}`,
         {
-          message: (error as Error).message,
-          stack: (error as Error).stack,
+          message: JSON.stringify((error as Error).message),
+          stack: JSON.stringify((error as Error).stack),
         }
       );
       this.reportManager.error(
@@ -265,8 +265,8 @@ export class SyncEngine {
       return adoBug;
     } catch (error) {
       errorLogger.error("Error in handle create ADO Bug from FS Ticket:", {
-        message: (error as Error).message,
-        stack: (error as Error).stack,
+        message: JSON.stringify((error as Error).message),
+        stack: JSON.stringify((error as Error).stack),
       });
 
       this.reportManager.error(
@@ -302,8 +302,8 @@ export class SyncEngine {
       );
     } catch (error) {
       errorLogger.error("Error in handle FS Ticket update from ADO Bug:", {
-        message: (error as Error).message,
-        stack: (error as Error).stack,
+        message: JSON.stringify((error as Error).message),
+        stack: JSON.stringify((error as Error).stack),
       });
       this.reportManager.error(
         "SyncEngine - handleFSTicketUpdateFromADOBug",
@@ -685,8 +685,8 @@ export class SyncEngine {
       errorLogger.error(
         `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
         {
-          message: (error as Error).message,
-          stack: (error as Error).stack,
+          message: JSON.stringify((error as Error).message),
+          stack: JSON.stringify((error as Error).stack),
         }
       );
       this.reportManager.error(
