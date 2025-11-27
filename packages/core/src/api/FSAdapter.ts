@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { logger } from "../utils/logger";
+import { logger, errorLogger } from "../utils/logger";
 import { sanitizeAndEncodeFSQuery } from "../utils/utils";
 
 export interface FSTicket {
@@ -106,7 +106,7 @@ export class FSAdapter {
       const err = error as Error;
       console.error(error);
 
-      logger.error("Error fetching tickets:", {
+      errorLogger.error("Error fetching tickets:", {
         message: err.message,
       });
       throw error;
@@ -120,7 +120,7 @@ export class FSAdapter {
       );
       return response.data?.ticket;
     } catch (error) {
-      logger.error(`Error fetching ticket with ID ${ticketId}:`, error);
+      errorLogger.error(`Error fetching ticket with ID ${ticketId}:`, error);
       throw error;
     }
   }
@@ -136,7 +136,11 @@ export class FSAdapter {
       );
       return response.data;
     } catch (error) {
-      logger.error(`Error updating ticket with ID ${ticketId}:`, error);
+      console.log("error updating ticket");
+      console.error(error);
+
+      errorLogger.error(`Error updating ticket with ID ${ticketId}:`, error);
+
       throw error;
     }
   }
@@ -146,7 +150,7 @@ export class FSAdapter {
       const response = await FSAdapter.client.get(`/api/v2/agents/${agentId}`);
       return response.data?.agent;
     } catch (error) {
-      logger.error(`Error fetching agent with ID ${agentId}:`, error);
+      errorLogger.error(`Error fetching agent with ID ${agentId}:`, error);
       throw error;
     }
   }
