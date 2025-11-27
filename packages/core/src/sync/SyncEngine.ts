@@ -274,7 +274,7 @@ export class SyncEngine {
         `Error creating ADO Bug for FS Ticket ID ${baseTicket.id}: ${
           (error as Error).message
         }`,
-        error
+        JSON.stringify(error, null, 2)
       );
 
       return null;
@@ -310,7 +310,7 @@ export class SyncEngine {
         `Error updating FS Ticket ID ${ticket.id} from ADO Bug ID ${
           adoBug.id
         }: ${(error as Error).message}`,
-        error
+        JSON.stringify(error, null, 2)
       );
     }
   }
@@ -694,7 +694,7 @@ export class SyncEngine {
         `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${
           (error as Error).message
         }`,
-        error
+        JSON.stringify(error, null, 2)
       );
     }
   }
