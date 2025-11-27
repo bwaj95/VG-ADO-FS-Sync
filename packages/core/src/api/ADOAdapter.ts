@@ -22,7 +22,7 @@ export type CreateBugOptions = {
 function makeError(message: string, status?: number, data?: any): ApiError {
   const err = new Error(message) as ApiError;
   err.status = status;
-  err.data = data;
+  err.data = JSON.stringify(data);
   return err;
 }
 
