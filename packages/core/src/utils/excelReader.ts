@@ -318,6 +318,7 @@ const parseProductsDataSheet = (
       Developer: String(row["Developer"] || "").trim(),
       Tester: String(row["Tester"] || "").trim(),
       WorkItemType: String(row["WorkItemType"] || "").trim(),
+      AssignedTo: String(row["AssignedTo"] || "").trim(),
     }));
     // Validate records
     records.forEach((record) => ProductsDataMappingSchema.parse(record));

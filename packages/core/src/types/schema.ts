@@ -127,6 +127,7 @@ export const ProductsDataMappingSchema = z.object({
   Developer: z.string().min(1),
   Tester: z.string().min(1),
   WorkItemType: z.string().min(1),
+  AssignedTo: z.string().min(1),
 });
 export type ProductsDataMappingRecord = z.infer<
   typeof ProductsDataMappingSchema

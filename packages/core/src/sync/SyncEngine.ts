@@ -682,6 +682,8 @@ export class SyncEngine {
         `✅ Completed uploading and attaching ${attachments.length} files for FS Ticket ID: ${ticket.id}`
       );
     } catch (error) {
+      console.error(error);
+
       errorLogger.error(
         `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
         {
