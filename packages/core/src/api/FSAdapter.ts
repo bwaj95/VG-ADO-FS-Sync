@@ -136,9 +136,20 @@ export class FSAdapter {
       console.log("error updating ticket");
       console.error(error);
 
-      errorLogger.error(`Error updating ticket with ID ${ticketId}:`, error);
+      let errorText;
 
-      throw error;
+      if ((error as any).response && (error as any)?.response?.data) {
+        errorText = (error as any).response.data;
+      } else if ((error as any).message) {
+        errorText = (error as any).message;
+      }
+
+      errorLogger.error(
+        `Error updating ticket with ID ${ticketId}:`,
+        errorText
+      );
+
+      throw errorText;
     }
   }
 
