@@ -134,7 +134,7 @@ export class FSAdapter {
       return response.data;
     } catch (error) {
       console.log("error updating ticket");
-      console.error(error);
+      // console.error(error);
 
       let errorText;
 
