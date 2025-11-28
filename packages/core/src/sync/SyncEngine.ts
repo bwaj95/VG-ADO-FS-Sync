@@ -619,7 +619,7 @@ export class SyncEngine {
         if (adoFieldValue && mapping.fsFieldType === "date") {
           adoFieldValue = convertADODateToISO(adoFieldValue);
         } else if (adoFieldValue && mapping.fsFieldType === "text") {
-          adoFieldValue = String(adoFieldValue);
+          adoFieldValue = "" + adoFieldValue;
         }
 
         if (mapping.isCustomFieldFS) {
@@ -627,6 +627,10 @@ export class SyncEngine {
         } else {
           updateBody[mapping.fs_field] = adoFieldValue;
         }
+
+        logger.debug(
+          `adding adovalue ${adoFieldValue}. type: ${mapping.fsFieldType}`
+        );
       });
 
       logger.debug(
