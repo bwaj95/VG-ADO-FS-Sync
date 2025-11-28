@@ -590,7 +590,7 @@ export class SyncEngine {
 
       if (process.env.FS_FIELD_FOR_ADO_BUG_ID) {
         const idKey = process.env.FS_FIELD_FOR_ADO_BUG_ID;
-        updateBody.custom_fields[idKey] = adoBug.id;
+        updateBody.custom_fields[idKey] = String(adoBug.id);
       }
 
       if (!this.adoToFsMappings || this.adoToFsMappings.length === 0) {
