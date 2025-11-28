@@ -94,11 +94,8 @@ export class FSAdapter {
 
       const tickets = response.data?.tickets || [];
 
-      logger.debug(
-        `Fetched tickets page ${page} with ${tickets.length} tickets.`,
-        {
-          tickets: tickets,
-        }
+      logger.info(
+        `Fetched tickets page ${page} with ${tickets.length} tickets.`
       );
 
       return tickets;

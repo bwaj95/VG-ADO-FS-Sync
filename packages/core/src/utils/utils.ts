@@ -83,3 +83,17 @@ export function stringifyMultiSelectFS(modules: string[]): string {
 
   return modules.map((m) => m.toString()).join(", ");
 }
+
+export function convertADODateToISO(dateStr: string): string {
+  // dateStr = "10/06/2025" → MM/DD/YYYY
+
+  if (dateStr && !dateStr.includes("/")) {
+    return dateStr;
+  }
+
+  const [month, day, year] = dateStr.split("/");
+
+  const date = new Date(`${year}-${month}-${day}T00:00:00.000Z`);
+
+  return date.toISOString();
+}

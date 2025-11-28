@@ -30,6 +30,7 @@ export const SingleFieldMappingSchema = z.object({
   fs_field: z.string().min(1),
   isCustomFieldFS: z.boolean().optional().default(false),
   isMultiSelectFS: z.boolean().optional().default(false),
+  fsFieldType: z.enum(["text", "date", ""]),
   ado_field: z.string().min(1),
   direction: z.enum(["FS_TO_ADO", "ADO_TO_FS"]),
 });

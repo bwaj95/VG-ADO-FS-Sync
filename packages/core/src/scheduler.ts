@@ -33,8 +33,8 @@ export const startScheduler = async () => {
         .setFilePath(excelFilePath)
         .readFile()
         .getSheetsData();
-      logger.info("✅ Successfully read mapping Excel file.", { sheetsData });
-      logger.debug("Mapping Sheets Data:", { sheetsData });
+      logger.info("✅ Successfully read mapping Excel file.");
+      // logger.debug("Mapping Sheets Data:", { sheetsData });
 
       // Initialize and run Sync Engine
       const syncEngine = SyncEngine.getInstance();

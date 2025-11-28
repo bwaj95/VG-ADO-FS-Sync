@@ -11,7 +11,7 @@ import {
 import { FileReader } from "../utils/FileReader";
 import { logger, errorLogger } from "../utils/logger";
 import { ReportManager } from "../utils/ReportManager";
-import { stringifyMultiSelectFS } from "../utils/utils";
+import { convertADODateToISO, stringifyMultiSelectFS } from "../utils/utils";
 
 export class SyncEngine {
   static instance: SyncEngine;
@@ -187,9 +187,9 @@ export class SyncEngine {
       const ticket = await this.fs.getTicketById(baseTicket.id);
       const patch = [];
 
-      logger.debug(`Fetched FS Ticket Details for ID ${ticket.id}:`, {
-        ticket,
-      });
+      // logger.debug(`Fetched FS Ticket Details for ID ${ticket.id}:`, {
+      //   ticket,
+      // });
 
       const requester =
         ticket.requester && ticket.requester?.email ? ticket.requester : null;
@@ -251,16 +251,17 @@ export class SyncEngine {
 
       this.reportManager.logCreatedADOBug(ticket, adoBug, patch);
 
-      if (ticket.attachments && ticket.attachments.length > 0) {
-        logger.info(
-          `Uploading and attaching ${ticket.attachments.length} attachments for ADO Bug ID: ${adoBug.id}`
-        );
+      /** Attachment handling code */
+      // if (ticket.attachments && ticket.attachments.length > 0) {
+      //   logger.info(
+      //     `Uploading and attaching ${ticket.attachments.length} attachments for ADO Bug ID: ${adoBug.id}`
+      //   );
 
-        await this.handleAttachmentUploadAndLinking(ticket, adoBug);
-        logger.info(
-          `[SyncEngine - handleCreateADOBug] - ✅ Completed attachment upload and linking for ADO Bug ID: ${adoBug.id}`
-        );
-      }
+      //   await this.handleAttachmentUploadAndLinking(ticket, adoBug);
+      //   logger.info(
+      //     `[SyncEngine - handleCreateADOBug] - ✅ Completed attachment upload and linking for ADO Bug ID: ${adoBug.id}`
+      //   );
+      // }
 
       return adoBug;
     } catch (error) {
@@ -344,9 +345,9 @@ export class SyncEngine {
         adoPatchData.push(adoPatchEntry);
       });
 
-      logger.debug(`ADO Fields built from FS Ticket ${ticket.id} :`, {
-        adoFields: adoPatchData,
-      });
+      // logger.debug(`ADO Fields built from FS Ticket ${ticket.id} :`, {
+      //   adoFields: adoPatchData,
+      // });
 
       return adoPatchData;
     } catch (error) {
@@ -405,9 +406,9 @@ export class SyncEngine {
         value: combinedHtmlText,
       };
 
-      logger.debug(`ADO Repo Fields built from FS Ticket ${ticket.id} :`, {
-        adoFields: adoPatchEntry,
-      });
+      // logger.debug(`ADO Repo Fields built from FS Ticket ${ticket.id} :`, {
+      //   adoFields: adoPatchEntry,
+      // });
 
       return [adoPatchEntry];
     } catch (error) {
@@ -461,9 +462,9 @@ export class SyncEngine {
         return adoPatchData;
       }
 
-      logger.debug(`Product Details found for FS Ticket ID ${ticket.id}:`, {
-        productDetails,
-      });
+      // logger.debug(`Product Details found for FS Ticket ID ${ticket.id}:`, {
+      //   productDetails,
+      // });
 
       this.productFieldMappings.forEach((mapping) => {
         const key =
@@ -471,9 +472,9 @@ export class SyncEngine {
 
         const value = productDetails[key];
 
-        logger.debug(
-          `Ticket ${ticket.id} - Mapping Product Field - ADO Field: ${mapping.ado_field}, Value: ${value}`
-        );
+        // logger.debug(
+        //   `Ticket ${ticket.id} - Mapping Product Field - ADO Field: ${mapping.ado_field}, Value: ${value}`
+        // );
 
         if (value) {
           const adoPatchEntry: PatchOperation = {
@@ -486,9 +487,9 @@ export class SyncEngine {
         }
       });
 
-      logger.debug(`ADO Product Fields built from FS Ticket ${ticket.id} :`, {
-        adoFields: adoPatchData,
-      });
+      // logger.debug(`ADO Product Fields built from FS Ticket ${ticket.id} :`, {
+      //   adoFields: adoPatchData,
+      // });
 
       return adoPatchData;
     } catch (error) {
@@ -614,6 +615,10 @@ export class SyncEngine {
         }
 
         adoFieldValue = adoFieldValue ?? "";
+
+        if (adoFieldValue && mapping.fsFieldType === "date") {
+          adoFieldValue = convertADODateToISO(adoFieldValue);
+        }
 
         if (mapping.isCustomFieldFS) {
           updateBody.custom_fields[mapping.fs_field] = adoFieldValue;

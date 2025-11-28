@@ -113,6 +113,10 @@ const parseSingleFieldSheet = (
           .trim()
           .toLowerCase() === "true"
       ),
+      fsFieldType: String(row["FS-Field-Type"] || "").trim() as
+        | ""
+        | "text"
+        | "date",
       ado_field: String(row["ADO-Field-Key"] || "").trim(),
       direction: String(row["Direction"] || "")
         .trim()
@@ -123,7 +127,7 @@ const parseSingleFieldSheet = (
     logger.info(
       `Successfully read ${records.length} SingleField mapping records from Excel file.`
     );
-    logger.debug("SingleField Mapping records:", { records });
+    // logger.debug("SingleField Mapping records:", { records });
     return records;
   } catch (error) {
     errorLogger.error("Failed to read SingleField sheet from Excel file", {
@@ -175,7 +179,7 @@ const parseRepoSheet = (workbook: XLSX.WorkBook): RepoMappingRecord[] => {
     logger.info(
       `Successfully read ${records.length} Repo mapping records from Excel file.`
     );
-    logger.debug("Repo Mapping records:", { records });
+    // logger.debug("Repo Mapping records:", { records });
     return records;
   } catch (error) {
     errorLogger.error("Failed to read Repo sheet from Excel file", { error });
@@ -215,7 +219,7 @@ const parseQuerySheet = (workbook: XLSX.WorkBook): QueryMappingRecord[] => {
     logger.info(
       `Successfully read ${records.length} Query mapping records from Excel file.`
     );
-    logger.debug("Query Mapping records:", { records });
+    // logger.debug("Query Mapping records:", { records });
     return records;
   } catch (error) {
     errorLogger.error("Failed to read Query sheet from Excel file", { error });
@@ -247,7 +251,7 @@ const parseURLSheet = (workbook: XLSX.WorkBook): URLMappingRecord[] => {
     logger.info(
       `Successfully read ${records.length} URL mapping records from Excel file.`
     );
-    logger.debug("URL Mapping records:", { records });
+    // logger.debug("URL Mapping records:", { records });
     return records;
   } catch (error) {
     errorLogger.error("Failed to read URL sheet from Excel file", { error });
@@ -282,7 +286,7 @@ const parseProductsFieldsSheet = (
     logger.info(
       `Successfully read ${records.length} ProductField mapping records from Excel file.`
     );
-    logger.debug("ProductField Mapping records:", { records });
+    // logger.debug("ProductField Mapping records:", { records });
     return records;
   } catch (error) {
     errorLogger.error("Failed to read ProductsFields sheet from Excel file", {
@@ -325,7 +329,7 @@ const parseProductsDataSheet = (
     logger.info(
       `Successfully read ${records.length} ProductsData mapping records from Excel file.`
     );
-    logger.debug("ProductsData Mapping records:", { records });
+    // logger.debug("ProductsData Mapping records:", { records });
     return records;
   } catch (error) {
     errorLogger.error("Failed to read ProductsData sheet from Excel file", {
