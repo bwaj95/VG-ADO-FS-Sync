@@ -618,6 +618,8 @@ export class SyncEngine {
 
         if (adoFieldValue && mapping.fsFieldType === "date") {
           adoFieldValue = convertADODateToISO(adoFieldValue);
+        } else if (adoFieldValue && mapping.fsFieldType === "text") {
+          adoFieldValue = String(adoFieldValue);
         }
 
         if (mapping.isCustomFieldFS) {

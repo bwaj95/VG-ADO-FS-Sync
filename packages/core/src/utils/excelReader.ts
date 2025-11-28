@@ -113,7 +113,7 @@ const parseSingleFieldSheet = (
           .trim()
           .toLowerCase() === "true"
       ),
-      fsFieldType: String(row["FS-Field-Type"] || "").trim() as
+      fsFieldType: String(row["FS-Field-Type"] || "text").trim() as
         | ""
         | "text"
         | "date",
