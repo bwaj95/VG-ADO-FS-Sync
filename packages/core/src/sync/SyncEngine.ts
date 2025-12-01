@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ADOAdapter } from "../api/ADOAdapter";
 import { FSAdapter, FSAgent, FSTicket } from "../api/FSAdapter";
 import { PatchOperation, WorkItem } from "../api/types";
@@ -667,10 +668,9 @@ export class SyncEngine {
         logger.info(
           `Uploading attachment ${attachment.name} for FS Ticket ID: ${ticket.id}`
         );
-        const fileBufferResponse = await FSAdapter.client.get(
-          attachment.attachment_url,
-          { responseType: "arraybuffer" }
-        );
+        const fileBufferResponse = await axios.get(attachment.attachment_url, {
+          responseType: "arraybuffer",
+        });
 
         logger.debug(`File buffer response`, { fileBufferResponse });
 
