@@ -252,16 +252,16 @@ export class SyncEngine {
       this.reportManager.logCreatedADOBug(ticket, adoBug, patch);
 
       /** Attachment handling code */
-      // if (ticket.attachments && ticket.attachments.length > 0) {
-      //   logger.info(
-      //     `Uploading and attaching ${ticket.attachments.length} attachments for ADO Bug ID: ${adoBug.id}`
-      //   );
+      if (ticket.attachments && ticket.attachments.length > 0) {
+        logger.info(
+          `Uploading and attaching ${ticket.attachments.length} attachments for ADO Bug ID: ${adoBug.id}`
+        );
 
-      //   await this.handleAttachmentUploadAndLinking(ticket, adoBug);
-      //   logger.info(
-      //     `[SyncEngine - handleCreateADOBug] - ✅ Completed attachment upload and linking for ADO Bug ID: ${adoBug.id}`
-      //   );
-      // }
+        await this.handleAttachmentUploadAndLinking(ticket, adoBug);
+        logger.info(
+          `[SyncEngine - handleCreateADOBug] - ✅ Completed attachment upload and linking for ADO Bug ID: ${adoBug.id}`
+        );
+      }
 
       return adoBug;
     } catch (error) {

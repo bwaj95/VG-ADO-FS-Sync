@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import dotenv from "dotenv";
 import type { PatchOperation, WorkItem, ApiError } from "./types.js";
+import { logger } from "../utils/logger.js";
 
 dotenv.config();
 
@@ -21,8 +22,8 @@ export type CreateBugOptions = {
 
 function makeError(message: string, status?: number, data?: any): ApiError {
   const err = new Error(message) as ApiError;
-  err.status = status;
-  err.data = data;
+  if (status) err.status = status;
+  if (data) err.data = data;
   return err;
 }
 
@@ -49,7 +50,6 @@ export class ADOAdapter {
       baseURL: `${process.env.VG_ADO_ORG_URL}/DefaultCollection/${process.env.VG_ADO_PROJECT}/_apis`,
       headers: {
         Authorization: `Basic ${token}`,
-        "Content-Type": "application/json-patch+json",
       },
     });
   }
@@ -102,7 +102,10 @@ export class ADOAdapter {
     try {
       const response = await this.client.patch(
         `/wit/workitems/${id}?api-version=7.1`,
-        patch
+        patch,
+        {
+          headers: { "Content-Type": "application/json-patch+json" },
+        }
       );
       return response.data as WorkItem;
     } catch (error) {
@@ -117,9 +120,15 @@ export class ADOAdapter {
 
   public async queryWiql(query: string) {
     try {
-      const response = await this.client.post("/wit/wiql?api-version=7.1", {
-        query,
-      });
+      const response = await this.client.post(
+        "/wit/wiql?api-version=7.1",
+        {
+          query,
+        },
+        {
+          headers: { "Content-Type": "application/json-patch+json" },
+        }
+      );
       return response.data;
     } catch (error) {
       const err = error as any;
@@ -144,11 +153,14 @@ export class ADOAdapter {
     buffer: Buffer
   ): Promise<ADOAttachmentUploadResult> {
     try {
-      const url = `/wit/attachments?fileName=${encodeURIComponent(
-        fileName
-      )}&api-version=7.1-preview.1`;
+      logger.info(
+        `UploadAttachment Details: FileName: ${fileName} | Content-Type: ${contentType} | Buffer length: ${buffer?.length}`
+      );
+
+      const url = `/wit/attachments`;
 
       const res = await this.client.post(url, buffer, {
+        params: { "api-version": "7.1-preview.1", fileName },
         headers: {
           "Content-Type": contentType || "application/octet-stream",
         },

@@ -149,7 +149,7 @@ export class FSAdapter {
         errorText
       );
 
-      throw errorText;
+      throw errorText as Error;
     }
   }
 
