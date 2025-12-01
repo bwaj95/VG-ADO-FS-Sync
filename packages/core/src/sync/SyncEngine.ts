@@ -671,6 +671,9 @@ export class SyncEngine {
           attachment.attachment_url,
           { responseType: "arraybuffer" }
         );
+
+        logger.debug(`File buffer response`, { fileBufferResponse });
+
         const fileBuffer = Buffer.from(fileBufferResponse.data);
 
         const uploadResult = await this.ado.uploadAttachment(
