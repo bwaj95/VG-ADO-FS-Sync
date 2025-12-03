@@ -113,7 +113,9 @@ export function serializeError(err: any, type: string, source: string): any {
     );
     console.error(parsedError);
 
-    errorLogger.error(`[serializeErrror - string] - ${parsedError.message}`);
+    errorLogger.error(
+      `[serializeErrror - string] - ${parsedError.message} - ${parsedError.stack}`
+    );
 
     errorLogger.error(
       `[serializeErrror - json parse] - ${JSON.parse(parsedError.message)}`
