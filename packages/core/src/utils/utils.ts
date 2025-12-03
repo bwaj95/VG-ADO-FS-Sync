@@ -113,12 +113,6 @@ export function serializeError(err: any, type: string, source: string): any {
     );
     console.error(parsedError);
 
-    Object.entries(parsedError?.message).map((key, value) => {
-      errorLogger.error(
-        `[serializeError - type:${type} - source:${source}] - parsedError message key ${key} - value${value}`
-      );
-    });
-
     errorLogger.error(`[serializeErrror - string] - ${parsedError.message}`);
 
     errorLogger.error(
@@ -136,6 +130,8 @@ export function serializeError(err: any, type: string, source: string): any {
 }
 
 export function getErrorMessage(err: any, source: string): string {
+  errorLogger.error(`[getErrorMessage] Received error from ${source}`);
+
   if (!err) return "Unknown error";
 
   if (err?.response?.data)
