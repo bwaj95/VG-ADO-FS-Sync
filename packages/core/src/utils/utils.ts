@@ -100,7 +100,7 @@ export function convertADODateToISO(dateStr: string): string {
   return date.toISOString();
 }
 
-export function serializeError(err: any): any {
+export function serializeError(err: any, type: string, source: string): any {
   if (err instanceof Error) {
     const parsedError = {
       name: err?.name,
@@ -108,11 +108,15 @@ export function serializeError(err: any): any {
       stack: err.stack,
     };
 
-    console.log(`[seerializeError] - console logging the parsedError`);
+    console.log(
+      `[seerializeError - type:${type} - source:${source}] - console logging the parsedError`
+    );
     console.error(parsedError);
 
-    Object.keys(parsedError?.message).map((key) => {
-      errorLogger.error(`[serializeError] - parsedError message key ${key}`);
+    Object.entries(parsedError?.message).map((key, value) => {
+      errorLogger.error(
+        `[serializeError - type:${type} - source:${source}] - parsedError message key ${key} - value${value}`
+      );
     });
 
     errorLogger.error(`[serializeErrror - string] - ${parsedError.message}`);
@@ -131,12 +135,13 @@ export function serializeError(err: any): any {
   }
 }
 
-export function getErrorMessage(err: any): string {
+export function getErrorMessage(err: any, source: string): string {
   if (!err) return "Unknown error";
 
-  if (err?.response?.data) return serializeError(err.response?.data);
+  if (err?.response?.data)
+    return serializeError(err.response?.data, "Axios Error", source);
 
-  if (err instanceof Error) return serializeError(err);
+  if (err instanceof Error) return serializeError(err, "Base Error", source);
 
   if (typeof err === "string") return err;
 

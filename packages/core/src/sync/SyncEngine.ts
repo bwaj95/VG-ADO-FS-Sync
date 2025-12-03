@@ -701,7 +701,10 @@ export class SyncEngine {
       );
     } catch (error) {
       console.log("Attach file error...");
-      const generatedError = getErrorMessage(error);
+      const generatedError = getErrorMessage(
+        error,
+        "handleAttachmentUploadAndLinking catch"
+      );
       console.log(generatedError);
 
       errorLogger.error(

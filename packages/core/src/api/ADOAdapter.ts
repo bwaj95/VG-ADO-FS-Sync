@@ -174,7 +174,7 @@ export class ADOAdapter {
         url: res.data.url,
       };
     } catch (err: any) {
-      const generatedError = getErrorMessage(err);
+      const generatedError = getErrorMessage(err, "uploadAttachment catch");
 
       errorLogger.error(
         `[ADOAdapter] Error uploading attachment - ${generatedError}`
