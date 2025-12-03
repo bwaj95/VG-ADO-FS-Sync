@@ -12,7 +12,11 @@ import {
 import { FileReader } from "../utils/FileReader";
 import { logger, errorLogger } from "../utils/logger";
 import { ReportManager } from "../utils/ReportManager";
-import { convertADODateToISO, stringifyMultiSelectFS } from "../utils/utils";
+import {
+  convertADODateToISO,
+  getErrorMessage,
+  stringifyMultiSelectFS,
+} from "../utils/utils";
 
 export class SyncEngine {
   static instance: SyncEngine;
@@ -697,22 +701,17 @@ export class SyncEngine {
       );
     } catch (error) {
       console.log("Attach file error...");
-      console.log(JSON.stringify(error));
+      const generatedError = getErrorMessage(error);
+      console.log(generatedError);
 
       errorLogger.error(
         `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
-        {
-          message: JSON.stringify((error as Error).message),
-          stack: JSON.stringify((error as Error).stack),
-          cause: JSON.stringify((error as Error)?.cause),
-        }
+        error
       );
       this.reportManager.error(
         "SyncEngine - handleAttachmentUploadAndLinking",
-        `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${
-          (error as Error).message
-        }`,
-        JSON.stringify(error, null, 2)
+        `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${generatedError}`,
+        generatedError
       );
     }
   }

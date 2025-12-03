@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import dotenv from "dotenv";
 import type { PatchOperation, WorkItem, ApiError } from "./types.js";
-import { logger } from "../utils/logger.js";
+import { errorLogger, logger } from "../utils/logger.js";
+import { getErrorMessage } from "../utils/utils.js";
 
 dotenv.config();
 
@@ -173,10 +174,16 @@ export class ADOAdapter {
         url: res.data.url,
       };
     } catch (err: any) {
+      const generatedError = getErrorMessage(err);
+
+      errorLogger.error(
+        `[ADOAdapter] Error uploading attachment - ${generatedError}`
+      );
+
       throw makeError(
         `Failed to upload attachment ${fileName}`,
         err?.response?.status,
-        err?.response?.data ?? err?.message
+        generatedError
       );
     }
   }

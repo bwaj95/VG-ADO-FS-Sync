@@ -97,3 +97,36 @@ export function convertADODateToISO(dateStr: string): string {
 
   return date.toISOString();
 }
+
+export function serializeError(err: any): any {
+  if (err instanceof Error) {
+    return {
+      ...err,
+      name: err?.name,
+      message: err?.message,
+      stack: err.stack,
+    };
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(err));
+  } catch {
+    return String(err);
+  }
+}
+
+export function getErrorMessage(err: any): string {
+  if (!err) return "Unknown error";
+
+  if (err?.response?.data) return serializeError(err.response?.data);
+
+  if (err instanceof Error) return serializeError(err);
+
+  if (typeof err === "string") return err;
+
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
