@@ -108,6 +108,9 @@ export function serializeError(err: any): any {
       stack: err.stack,
     };
 
+    console.log(`[seerializeError] - console logging the error`);
+    console.error(err);
+
     errorLogger.error(
       `[serializeErrror - string] - ${String(parsedError.message)}`
     );
