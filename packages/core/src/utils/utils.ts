@@ -1,3 +1,5 @@
+import { errorLogger } from "./logger";
+
 export const formattedDate = (): string => {
   const now = new Date();
 
@@ -100,12 +102,15 @@ export function convertADODateToISO(dateStr: string): string {
 
 export function serializeError(err: any): any {
   if (err instanceof Error) {
-    return {
-      ...err,
+    const parsedError = {
       name: err?.name,
       message: err?.message,
       stack: err.stack,
     };
+
+    errorLogger.error(`[serializeErrror] - ${parsedError}`);
+
+    return parsedError;
   }
 
   try {
