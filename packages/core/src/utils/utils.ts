@@ -110,6 +110,8 @@ export function serializeError(err: any): any {
 
     errorLogger.error(`[serializeErrror] - ${String(parsedError.message)}`);
 
+    errorLogger.error(`[serializeErrror] - ${JSON.parse(parsedError.message)}`);
+
     return parsedError;
   }
 
