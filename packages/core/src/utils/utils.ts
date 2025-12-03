@@ -108,7 +108,7 @@ export function serializeError(err: any): any {
       stack: err.stack,
     };
 
-    errorLogger.error(`[serializeErrror] - ${parsedError}`);
+    errorLogger.error(`[serializeErrror] - ${String(parsedError.message)}`);
 
     return parsedError;
   }
