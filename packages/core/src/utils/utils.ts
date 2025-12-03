@@ -108,9 +108,13 @@ export function serializeError(err: any): any {
       stack: err.stack,
     };
 
-    errorLogger.error(`[serializeErrror] - ${String(parsedError.message)}`);
+    errorLogger.error(
+      `[serializeErrror - string] - ${String(parsedError.message)}`
+    );
 
-    errorLogger.error(`[serializeErrror] - ${JSON.parse(parsedError.message)}`);
+    errorLogger.error(
+      `[serializeErrror - json parse] - ${JSON.parse(parsedError.message)}`
+    );
 
     return parsedError;
   }
