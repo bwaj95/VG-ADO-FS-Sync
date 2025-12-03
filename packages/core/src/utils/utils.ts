@@ -100,36 +100,32 @@ export function convertADODateToISO(dateStr: string): string {
   return date.toISOString();
 }
 
-export function serializeError(err: any, type: string, source: string): any {
-  if (err instanceof Error) {
-    const parsedError = {
-      name: err?.name,
-      message: err?.message,
-      stack: err.stack,
-    };
+// export function serializeError(err: any, type: string, source: string): any {
+//   if (err instanceof Error) {
+//     const parsedError = {
+//       name: err?.name,
+//       message: err?.message,
+//       stack: err.stack,
+//     };
 
-    console.log(
-      `[seerializeError - type:${type} - source:${source}] - console logging the parsedError`
-    );
-    console.error(parsedError);
+//     console.log(
+//       `[seerializeError - type:${type} - source:${source}] - console logging the parsedError`
+//     );
+//     console.error(parsedError);
 
-    errorLogger.error(
-      `[serializeErrror - string] - ${parsedError.message} - ${parsedError.stack}`
-    );
+//     errorLogger.error(
+//       `[serializeErrror - string] - ${parsedError.message} - ${parsedError.stack}`
+//     );
 
-    errorLogger.error(
-      `[serializeErrror - json parse] - ${JSON.parse(parsedError.message)}`
-    );
+//     return parsedError;
+//   }
 
-    return parsedError;
-  }
-
-  try {
-    return JSON.parse(JSON.stringify(err));
-  } catch {
-    return String(err);
-  }
-}
+//   try {
+//     return JSON.parse(JSON.stringify(err));
+//   } catch {
+//     return String(err);
+//   }
+// }
 
 export function getErrorMessage(err: any, source: string): string {
   errorLogger.error(`[getErrorMessage] Received error from ${source}`);
@@ -139,13 +135,71 @@ export function getErrorMessage(err: any, source: string): string {
   if (err?.response?.data)
     return serializeError(err.response?.data, "Axios Error", source);
 
-  if (err instanceof Error) return serializeError(err, "Base Error", source);
+  if (err instanceof Error)
+    return JSON.stringify(serializeError(err, "Base Error", source));
 
   if (typeof err === "string") return err;
 
   try {
-    return JSON.stringify(err);
+    return JSON.stringify(safeStringify(err));
   } catch {
     return String(err);
+  }
+}
+
+export function serializeError(err: any, type: string, source: string) {
+  try {
+    if (err instanceof Error) {
+      const safe = {
+        type,
+        source,
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      };
+
+      // DO NOT PARSE OR JSON.STRINGIFY ERROR MESSAGE EVER
+      errorLogger.error(
+        `[serializeError] ${type} from ${source}: ${err.message}`
+      );
+
+      return safe;
+    }
+
+    // Axios error with response data
+    if (err?.response?.data) {
+      return {
+        type,
+        source,
+        message: err.response.data?.message || "Axios error",
+        status: err.response.status,
+        data:
+          typeof err.response.data === "object"
+            ? safeStringify(err.response.data)
+            : err.response.data,
+      };
+    }
+
+    return safeStringify(err);
+  } catch (e) {
+    return { message: String(err) };
+  }
+}
+
+// Prevent circular structure crashes
+function safeStringify(obj: any) {
+  try {
+    const seen = new WeakSet();
+    return JSON.parse(
+      JSON.stringify(obj, (key, value) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) return "[Circular]";
+          seen.add(value);
+        }
+        return value;
+      })
+    );
+  } catch {
+    return String(obj);
   }
 }
