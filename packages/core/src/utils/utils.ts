@@ -108,12 +108,14 @@ export function serializeError(err: any): any {
       stack: err.stack,
     };
 
-    console.log(`[seerializeError] - console logging the error`);
-    console.error(err);
+    console.log(`[seerializeError] - console logging the parsedError`);
+    console.error(parsedError);
 
-    errorLogger.error(
-      `[serializeErrror - string] - ${String(parsedError.message)}`
-    );
+    errorLogger.error(`[serializeErrror - string] - ${parsedError.message}`);
+
+    Object.keys(parsedError?.message).map((key) => {
+      errorLogger.error(`[serializeError] - parsedError message key ${key}`);
+    });
 
     errorLogger.error(
       `[serializeErrror - json parse] - ${JSON.parse(parsedError.message)}`
