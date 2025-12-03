@@ -111,11 +111,11 @@ export function serializeError(err: any): any {
     console.log(`[seerializeError] - console logging the parsedError`);
     console.error(parsedError);
 
-    errorLogger.error(`[serializeErrror - string] - ${parsedError.message}`);
-
     Object.keys(parsedError?.message).map((key) => {
       errorLogger.error(`[serializeError] - parsedError message key ${key}`);
     });
+
+    errorLogger.error(`[serializeErrror - string] - ${parsedError.message}`);
 
     errorLogger.error(
       `[serializeErrror - json parse] - ${JSON.parse(parsedError.message)}`
