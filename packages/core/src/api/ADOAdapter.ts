@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import dotenv from "dotenv";
 import type { PatchOperation, WorkItem, ApiError } from "./types.js";
-import { errorLogger, logger } from "../utils/logger.js";
+// import { errorLogger, logger } from "../utils/logger.js";
 import { getErrorMessage } from "../utils/utils.js";
 
 dotenv.config();
@@ -86,9 +86,9 @@ export class ADOAdapter {
       const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
 
-      errorLogger.error(
-        `[ADOAdapter] Error creating bug - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
-      );
+      // errorLogger.error(
+      //   `[ADOAdapter] Error creating bug - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      // );
 
       throw makeError("Failed to ADO create bug", status, data);
     }
@@ -105,9 +105,9 @@ export class ADOAdapter {
       const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
 
-      errorLogger.error(
-        `[ADOAdapter] Error fetching work item - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
-      );
+      // errorLogger.error(
+      //   `[ADOAdapter] Error fetching work item - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      // );
 
       throw makeError("Failed to fetch ADO bug", status, data);
     }
@@ -128,9 +128,9 @@ export class ADOAdapter {
       const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
 
-      errorLogger.error(
-        `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
-      );
+      // errorLogger.error(
+      //   `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      // );
       throw makeError(`Failed to update ADO bug ID ${id}`, status, data);
     }
   }
@@ -152,9 +152,9 @@ export class ADOAdapter {
       const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
 
-      errorLogger.error(
-        `[ADOAdapter] Error executing WIQL query - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
-      );
+      // errorLogger.error(
+      //   `[ADOAdapter] Error executing WIQL query - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      // );
 
       throw makeError("Failed to execute WIQL query", status, data);
     }
@@ -173,9 +173,9 @@ export class ADOAdapter {
     buffer: Buffer
   ): Promise<ADOAttachmentUploadResult> {
     try {
-      logger.info(
-        `UploadAttachment Details: FileName: ${fileName} | Content-Type: ${contentType} | Buffer length: ${buffer?.length}`
-      );
+      // logger.info(
+      //   `UploadAttachment Details: FileName: ${fileName} | Content-Type: ${contentType} | Buffer length: ${buffer?.length}`
+      // );
 
       const url = `/wit/attachments`;
 
@@ -197,9 +197,9 @@ export class ADOAdapter {
       const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
 
-      errorLogger.error(
-        `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
-      );
+      // errorLogger.error(
+      //   `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      // );
 
       console.log("ADO uploadattachment full errror....");
       console.error(err);

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { logger, errorLogger } from "../utils/logger";
+// import { logger, errorLogger } from "../utils/logger";
 import { sanitizeAndEncodeFSQuery } from "../utils/utils";
 
 export interface FSTicket {
@@ -63,7 +63,7 @@ export class FSAdapter {
     }
 
     if (!this.client) {
-      logger.info("Creating Freshservice Adapter instance");
+      // logger.info("Creating Freshservice Adapter instance");
       const domain = process.env.FS_DOMAIN;
       const apiKey = process.env.FS_API_KEY;
       this.instance = new FSAdapter(domain, apiKey);
@@ -79,12 +79,12 @@ export class FSAdapter {
     page: number = 1,
     perPage: number = 100
   ): Promise<FSTicket[]> {
-    logger.info(
-      `Fetching tickets from Freshservice: Page ${page}, Per Page: ${perPage}`
-    );
-    logger.debug(`Domain URL: ${this.domain}`);
-    logger.debug(`API Key Base64: ${this.apiKeyBase64}`);
-    logger.debug(`Using Fetch URL: ${this.FS_FETCH_URL}`);
+    // logger.info(
+    //   `Fetching tickets from Freshservice: Page ${page}, Per Page: ${perPage}`
+    // );
+    // logger.debug(`Domain URL: ${this.domain}`);
+    // logger.debug(`API Key Base64: ${this.apiKeyBase64}`);
+    // logger.debug(`Using Fetch URL: ${this.FS_FETCH_URL}`);
 
     try {
       const encodedQuery = sanitizeAndEncodeFSQuery(this.FS_FETCH_URL);
@@ -94,18 +94,18 @@ export class FSAdapter {
 
       const tickets = response.data?.tickets || [];
 
-      logger.info(
-        `Fetched tickets page ${page} with ${tickets.length} tickets.`
-      );
+      // logger.info(
+      //   `Fetched tickets page ${page} with ${tickets.length} tickets.`
+      // );
 
       return tickets;
     } catch (error) {
       const err = error as Error;
       console.error(error);
 
-      errorLogger.error("Error fetching tickets:", {
-        message: err.message,
-      });
+      // errorLogger.error("Error fetching tickets:", {
+      //   message: err.message,
+      // });
       throw error;
     }
   }
@@ -117,7 +117,7 @@ export class FSAdapter {
       );
       return response.data?.ticket;
     } catch (error) {
-      errorLogger.error(`Error fetching ticket with ID ${ticketId}:`, error);
+      // errorLogger.error(`Error fetching ticket with ID ${ticketId}:`, error);
       throw error;
     }
   }
@@ -144,10 +144,10 @@ export class FSAdapter {
         errorText = (error as any).message;
       }
 
-      errorLogger.error(
-        `Error updating ticket with ID ${ticketId}:`,
-        errorText
-      );
+      // errorLogger.error(
+      //   `Error updating ticket with ID ${ticketId}:`,
+      //   errorText
+      // );
 
       throw errorText as Error;
     }
@@ -158,7 +158,7 @@ export class FSAdapter {
       const response = await FSAdapter.client.get(`/api/v2/agents/${agentId}`);
       return response.data?.agent;
     } catch (error) {
-      errorLogger.error(`Error fetching agent with ID ${agentId}:`, error);
+      // errorLogger.error(`Error fetching agent with ID ${agentId}:`, error);
       throw error;
     }
   }
