@@ -201,6 +201,9 @@ export class ADOAdapter {
         `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
       );
 
+      console.log("ADO uploadattachment full errror....");
+      console.error(err);
+
       throw makeError(`Failed to upload attachment ${fileName}`, status, data);
     }
   }
