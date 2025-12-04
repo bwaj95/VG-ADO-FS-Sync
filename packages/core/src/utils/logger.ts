@@ -59,9 +59,14 @@ export const errorLogger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.printf(({ level, message, timestamp, ...meta }) => {
-      return `[${timestamp}] ${level.toUpperCase()}: ${message} ${
-        Object.keys(meta).length ? JSON.stringify(meta) : ""
-      }`;
+      let metaString = "";
+      try {
+        metaString = Object.keys(meta).length ? JSON.stringify(meta) : "";
+      } catch (_) {
+        metaString = "[Unserializable metadata]";
+      }
+
+      return `[${timestamp}] ${level.toUpperCase()}: ${message} ${metaString}`;
     })
   ),
   transports: [new winston.transports.File({ filename: "error.log" })],
