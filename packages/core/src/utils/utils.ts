@@ -1,5 +1,10 @@
 import { errorLogger } from "./logger";
 
+let flattedStringify: any = null;
+import("flatted").then(({ stringify }) => {
+  flattedStringify = stringify;
+});
+
 export const formattedDate = (): string => {
   const now = new Date();
 
@@ -132,8 +137,7 @@ export function getErrorMessage(err: any, source: string): string {
 
   if (!err) return "Unknown error";
 
-  if (err?.response?.data)
-    return serializeError(err.response?.data, "Axios Error", source);
+  if (err?.response?.data) return serializeError(err, "Axios Error", source);
 
   if (err instanceof Error)
     return JSON.stringify(serializeError(err, "Base Error", source));
@@ -154,10 +158,7 @@ export function serializeError(err: any, type: string, source: string) {
         type,
         source,
         name: err.name,
-        message:
-          typeof err.message === "object"
-            ? safeStringify(err.message)
-            : err.message,
+        message: flattedStringify(err.message),
         stack: err.stack,
       };
 
@@ -176,10 +177,7 @@ export function serializeError(err: any, type: string, source: string) {
         source,
         message: err.response.data?.message || "Axios error",
         status: err.response.status,
-        data:
-          typeof err.response.data === "object"
-            ? safeStringify(err.response.data)
-            : err.response.data,
+        data: err.response.data,
       };
     }
 
