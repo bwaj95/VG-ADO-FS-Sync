@@ -83,18 +83,32 @@ export class ADOAdapter {
       return res.data as WorkItem;
     } catch (err: any) {
       const status = err?.response?.status;
+      const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
+
+      errorLogger.error(
+        `[ADOAdapter] Error creating bug - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      );
+
       throw makeError("Failed to ADO create bug", status, data);
     }
   }
 
   public async getWorkItem(id: number): Promise<WorkItem> {
     try {
-      const res = await this.client.get(`/wit/workitems/${id}?api-version=7.1`);
+      const res = await this.client.get(
+        `/wit/workitems/${id}?api-version=7.1-preview.3`
+      );
       return res.data as WorkItem;
     } catch (err: any) {
       const status = err?.response?.status;
+      const statusText = err?.response?.statusText;
       const data = err?.response?.data ?? err?.message;
+
+      errorLogger.error(
+        `[ADOAdapter] Error fetching work item - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
+      );
+
       throw makeError("Failed to fetch ADO bug", status, data);
     }
   }
@@ -102,27 +116,29 @@ export class ADOAdapter {
   public async updateBug(id: number, patch: PatchOperation[]) {
     try {
       const response = await this.client.patch(
-        `/wit/workitems/${id}?api-version=7.1`,
+        `/wit/workitems/${id}?api-version=7.1-preview.3`,
         patch,
         {
           headers: { "Content-Type": "application/json-patch+json" },
         }
       );
       return response.data as WorkItem;
-    } catch (error) {
-      const err = error as any;
-      throw makeError(
-        `Failed to update ADO bug ID ${id}`,
-        err?.response?.status,
-        err?.response?.data ?? err?.message
+    } catch (err: any) {
+      const status = err?.response?.status;
+      const statusText = err?.response?.statusText;
+      const data = err?.response?.data ?? err?.message;
+
+      errorLogger.error(
+        `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
       );
+      throw makeError(`Failed to update ADO bug ID ${id}`, status, data);
     }
   }
 
   public async queryWiql(query: string) {
     try {
       const response = await this.client.post(
-        "/wit/wiql?api-version=7.1",
+        "/wit/wiql?api-version=7.1-preview.3",
         {
           query,
         },
@@ -131,13 +147,16 @@ export class ADOAdapter {
         }
       );
       return response.data;
-    } catch (error) {
-      const err = error as any;
-      throw makeError(
-        "Failed to execute WIQL query",
-        err?.response?.status,
-        err?.response?.data ?? err?.message
+    } catch (err: any) {
+      const status = err?.response?.status;
+      const statusText = err?.response?.statusText;
+      const data = err?.response?.data ?? err?.message;
+
+      errorLogger.error(
+        `[ADOAdapter] Error executing WIQL query - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
       );
+
+      throw makeError("Failed to execute WIQL query", status, data);
     }
   }
 
@@ -161,9 +180,9 @@ export class ADOAdapter {
       const url = `/wit/attachments`;
 
       const res = await this.client.post(url, buffer, {
-        params: { "api-version": "7.1-preview.1", fileName },
+        params: { "api-version": "7.1-preview.3", fileName },
         headers: {
-          "Content-Type": contentType || "application/octet-stream",
+          "Content-Type": "application/octet-stream",
         },
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
@@ -174,17 +193,15 @@ export class ADOAdapter {
         url: res.data.url,
       };
     } catch (err: any) {
-      const generatedError = getErrorMessage(err, "uploadAttachment catch");
+      const status = err?.response?.status;
+      const statusText = err?.response?.statusText;
+      const data = err?.response?.data ?? err?.message;
 
       errorLogger.error(
-        `[ADOAdapter] Error uploading attachment - ${generatedError}`
+        `[ADOAdapter] Error uploading attachment - Status: ${status} | StatusText: ${statusText} | Data: ${data}`
       );
 
-      throw makeError(
-        `Failed to upload attachment ${fileName}`,
-        err?.response?.status,
-        generatedError
-      );
+      throw makeError(`Failed to upload attachment ${fileName}`, status, data);
     }
   }
 

@@ -18,6 +18,9 @@ import {
   stringifyMultiSelectFS,
 } from "../utils/utils";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 export class SyncEngine {
   static instance: SyncEngine;
   fs: FSAdapter;
@@ -674,16 +677,21 @@ export class SyncEngine {
         );
         const fileBufferResponse = await axios.get(attachment.attachment_url, {
           responseType: "arraybuffer",
+          headers: {
+            Authorization: `Basic ${Buffer.from(
+              `${process.env.FS_API_KEY}:X`
+            ).toString("base64")}`,
+          },
         });
 
         logger.debug(`File buffer response`, { fileBufferResponse });
 
-        const fileBuffer = Buffer.from(fileBufferResponse.data);
+        // const fileBuffer = Buffer.from(fileBufferResponse.data);
 
         const uploadResult = await this.ado.uploadAttachment(
           attachment.name,
           attachment.content_type,
-          fileBuffer
+          fileBufferResponse.data
         );
         logger.info(
           `Uploaded attachment ${attachment.name} to ADO. Attachment ID: ${uploadResult.id}`
@@ -709,7 +717,7 @@ export class SyncEngine {
 
       errorLogger.error(
         `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
-        error
+        generatedError
       );
       this.reportManager.error(
         "SyncEngine - handleAttachmentUploadAndLinking",
