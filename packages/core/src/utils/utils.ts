@@ -154,7 +154,10 @@ export function serializeError(err: any, type: string, source: string) {
         type,
         source,
         name: err.name,
-        message: err.message,
+        message:
+          typeof err.message === "object"
+            ? safeStringify(err.message)
+            : err.message,
         stack: err.stack,
       };
 
