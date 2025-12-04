@@ -18,6 +18,8 @@ import {
   stringifyMultiSelectFS,
 } from "../utils/utils";
 
+import { stringify } from "flatted";
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -709,20 +711,22 @@ export class SyncEngine {
       );
     } catch (error) {
       console.log("Attach file error...");
-      const generatedError = getErrorMessage(
-        error,
-        "handleAttachmentUploadAndLinking catch"
-      );
-      console.log(generatedError);
+      // const generatedError = getErrorMessage(
+      //   error,
+      //   "handleAttachmentUploadAndLinking catch"
+      // );
+      const flatError = stringify(error);
+
+      console.log(flatError);
 
       errorLogger.error(
         `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
-        generatedError
+        flatError
       );
       this.reportManager.error(
         "SyncEngine - handleAttachmentUploadAndLinking",
-        `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${generatedError}`,
-        generatedError
+        `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${flatError}`,
+        flatError
       );
     }
   }
