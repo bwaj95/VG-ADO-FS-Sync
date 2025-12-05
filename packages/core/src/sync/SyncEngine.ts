@@ -10,7 +10,7 @@ import {
   SingleFieldMappingRecord,
 } from "../types/schema";
 import { FileReader } from "../utils/FileReader";
-// import { logger, errorLogger } from "../utils/logger";
+import { logger, errorLogger } from "../utils/logger";
 // import { ReportManager } from "../utils/ReportManager";
 import {
   convertADODateToISO,
@@ -690,7 +690,7 @@ export class SyncEngine {
           },
         });
 
-        // logger.debug(`File buffer response`, { fileBufferResponse });
+        logger.debug(`File buffer response`, { fileBufferResponse });
 
         // const fileBuffer = Buffer.from(fileBufferResponse.data);
 
