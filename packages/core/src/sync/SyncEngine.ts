@@ -11,7 +11,7 @@ import {
 } from "../types/schema";
 import { FileReader } from "../utils/FileReader";
 import { logger, errorLogger } from "../utils/logger";
-// import { ReportManager } from "../utils/ReportManager";
+import { ReportManager } from "../utils/ReportManager";
 import {
   convertADODateToISO,
   getErrorMessage,
@@ -31,7 +31,7 @@ export class SyncEngine {
   static instance: SyncEngine;
   fs: FSAdapter;
   ado: ADOAdapter;
-  // reportManager = ReportManager.getInstance();
+  reportManager = ReportManager.getInstance();
 
   private fsToAdoMappings: SingleFieldMappingRecord[] | null = null;
   private adoToFsMappings: SingleFieldMappingRecord[] | null = null;
@@ -109,94 +109,94 @@ export class SyncEngine {
         page++;
       }
 
-      // logger.info("✅ FS ↔ ADO Sync Engine run completed.");
+      logger.info("✅ FS ↔ ADO Sync Engine run completed.");
     } catch (error) {
-      // errorLogger.error(
-      //   `[SyncEngine] Error occurred: ${(error as Error)?.message}`
-      // );
-      // this.reportManager.error(
-      //   "SyncEngine - run",
-      //   `Error in sync run: ${(error as Error).message}`,
-      //   error
-      // );
+      errorLogger.error(
+        `[SyncEngine] Error occurred: ${(error as Error)?.message}`
+      );
+      this.reportManager.error(
+        "SyncEngine - run",
+        `Error in sync run: ${(error as Error).message}`,
+        error
+      );
     }
   }
 
   async processBatch(tickets: any[]) {
     try {
-      // logger.info(`⚙️ Processing batch of ${tickets.length} tickets.`);
+      logger.info(`⚙️ Processing batch of ${tickets.length} tickets.`);
 
       const promises = tickets.map((ticket) => this.processTicket(ticket));
 
       await Promise.all(promises);
     } catch (error) {
-      // errorLogger.error("[SyncEngine] - Error processing ticket batch:", {
-      //   message: JSON.stringify((error as Error).message),
-      //   stack: JSON.stringify((error as Error).stack),
-      // });
-      // this.reportManager.error(
-      //   "SyncEngine - processBatch",
-      //   `Error processing batch: ${(error as Error).message}`,
-      //   error
-      // );
+      errorLogger.error("[SyncEngine] - Error processing ticket batch:", {
+        message: JSON.stringify((error as Error).message),
+        stack: JSON.stringify((error as Error).stack),
+      });
+      this.reportManager.error(
+        "SyncEngine - processBatch",
+        `Error processing batch: ${(error as Error).message}`,
+        error
+      );
     }
   }
 
   async processTicket(ticket: any) {
     try {
-      // logger.info(`🔄 Processing ticket ID: ${ticket.id}`);
+      logger.info(`🔄 Processing ticket ID: ${ticket.id}`);
       if (!ticket.custom_fields?.source_control_reference) {
         const adoBug = await this.handleCreateADOBug(ticket);
         if (!adoBug || !adoBug.id) {
-          // errorLogger.error(
-          //   `Failed to create ADO Bug for FS Ticket ID: ${ticket.id}`
-          // );
+          errorLogger.error(
+            `Failed to create ADO Bug for FS Ticket ID: ${ticket.id}`
+          );
           return;
         }
         // Update FS Ticket with ADO Bug reference
         await this.handleFSTicketUpdateFromADOBug(ticket, adoBug);
-        // logger.info(
-        //   `✅ Linked FS Ticket ID: ${ticket.id} with ADO Bug ID: ${adoBug.id}`
-        // );
+        logger.info(
+          `✅ Linked FS Ticket ID: ${ticket.id} with ADO Bug ID: ${adoBug.id}`
+        );
       } else {
-        // logger.info(
-        //   `FS Ticket ID: ${ticket.id} already linked to ADO Bug. Starting update flow.`
-        // );
+        logger.info(
+          `FS Ticket ID: ${ticket.id} already linked to ADO Bug. Starting update flow.`
+        );
 
         const adoBug = await this.ado.getWorkItem(
           ticket.custom_fields.source_control_reference
         );
 
-        // logger.debug(`Fetched ADO Bug for FS Ticket ID ${ticket.id}:`, {
-        //   adoBug,
-        // });
+        logger.debug(`Fetched ADO Bug for FS Ticket ID ${ticket.id}:`, {
+          adoBug,
+        });
 
         await this.handleFSTicketUpdateFromADOBug(ticket, adoBug);
-        // logger.info(
-        //   `✅ Updated FS Ticket ID: ${ticket.id} from ADO Bug ID: ${adoBug.id}`
-        // );
+        logger.info(
+          `✅ Updated FS Ticket ID: ${ticket.id} from ADO Bug ID: ${adoBug.id}`
+        );
       }
     } catch (error) {
-      // errorLogger.error(
-      //   `[SyncEngine] - Error processing ticket: ${ticket.id}`,
-      //   {
-      //     message: JSON.stringify((error as Error).message),
-      //     stack: JSON.stringify((error as Error).stack),
-      //   }
-      // );
-      // this.reportManager.error(
-      //   "SyncEngine - processTicket",
-      //   `Error processing ticket ID ${ticket.id}: ${(error as Error).message}`,
-      //   error
-      // );
+      errorLogger.error(
+        `[SyncEngine] - Error processing ticket: ${ticket.id}`,
+        {
+          message: JSON.stringify((error as Error).message),
+          stack: JSON.stringify((error as Error).stack),
+        }
+      );
+      this.reportManager.error(
+        "SyncEngine - processTicket",
+        `Error processing ticket ID ${ticket.id}: ${(error as Error).message}`,
+        error
+      );
     }
   }
 
   async handleCreateADOBug(baseTicket: any) {
     try {
-      // logger.info(
-      //   `Handling Ticket for Creating ADO Bug for FS Ticket ID: ${baseTicket.id}`
-      // );
+      logger.info(
+        `Handling Ticket for Creating ADO Bug for FS Ticket ID: ${baseTicket.id}`
+      );
 
       const ticket = await this.fs.getTicketById(baseTicket.id);
       const patch = [];
@@ -252,45 +252,45 @@ export class SyncEngine {
       const productFieldsAdoPatch = this.buildFSToADOProductFields(ticket);
       patch.push(...productFieldsAdoPatch);
 
-      // logger.debug(`Final ADO Bug Patch Data for FS Ticket ID ${ticket.id}:`, {
-      //   patch,
-      // });
+      logger.debug(`Final ADO Bug Patch Data for FS Ticket ID ${ticket.id}:`, {
+        patch,
+      });
 
       // Create ADO Bug
       const adoBug = await this.ado.createBug({ patch });
 
-      // logger.info(
-      //   `✅ Created ADO Bug ID: ${adoBug.id} for FS Ticket ID: ${ticket.id}`
-      // );
+      logger.info(
+        `✅ Created ADO Bug ID: ${adoBug.id} for FS Ticket ID: ${ticket.id}`
+      );
 
-      // this.reportManager.logCreatedADOBug(ticket, adoBug, patch);
+      this.reportManager.logCreatedADOBug(ticket, adoBug, patch);
 
       /** Attachment handling code */
       if (ticket.attachments && ticket.attachments.length > 0) {
-        // logger.info(
-        //   `Uploading and attaching ${ticket.attachments.length} attachments for ADO Bug ID: ${adoBug.id}`
-        // );
+        logger.info(
+          `Uploading and attaching ${ticket.attachments.length} attachments for ADO Bug ID: ${adoBug.id}`
+        );
 
         await this.handleAttachmentUploadAndLinking(ticket, adoBug);
-        // logger.info(
-        //   `[SyncEngine - handleCreateADOBug] - ✅ Completed attachment upload and linking for ADO Bug ID: ${adoBug.id}`
-        // );
+        logger.info(
+          `[SyncEngine - handleCreateADOBug] - ✅ Completed attachment upload and linking for ADO Bug ID: ${adoBug.id}`
+        );
       }
 
       return adoBug;
     } catch (error) {
-      // errorLogger.error("Error in handle create ADO Bug from FS Ticket:", {
-      //   message: JSON.stringify((error as Error).message),
-      //   stack: JSON.stringify((error as Error).stack),
-      // });
+      errorLogger.error("Error in handle create ADO Bug from FS Ticket:", {
+        message: JSON.stringify((error as Error).message),
+        stack: JSON.stringify((error as Error).stack),
+      });
 
-      // this.reportManager.error(
-      //   "SyncEngine - handleCreateADOBug",
-      //   `Error creating ADO Bug for FS Ticket ID ${baseTicket.id}: ${
-      //     (error as Error).message
-      //   }`,
-      //   JSON.stringify(error, null, 2)
-      // );
+      this.reportManager.error(
+        "SyncEngine - handleCreateADOBug",
+        `Error creating ADO Bug for FS Ticket ID ${baseTicket.id}: ${
+          (error as Error).message
+        }`,
+        JSON.stringify(error, null, 2)
+      );
 
       return null;
     }
@@ -298,35 +298,35 @@ export class SyncEngine {
 
   async handleFSTicketUpdateFromADOBug(ticket: any, adoBug: WorkItem) {
     try {
-      // logger.info(
-      //   `Handling FS Ticket Update from ADO Bug ID: ${adoBug.id} for FS Ticket ID: ${ticket.id}`
-      // );
+      logger.info(
+        `Handling FS Ticket Update from ADO Bug ID: ${adoBug.id} for FS Ticket ID: ${ticket.id}`
+      );
 
       const updateBody = this.buildFSUpdateBodyFromADOBug(adoBug, ticket);
 
       await this.fs.updateTicket(ticket.id, updateBody);
 
-      // logger.info(
-      //   `✅ Updated FS Ticket ID: ${ticket.id} from ADO Bug ID: ${adoBug.id}`
-      // );
+      logger.info(
+        `✅ Updated FS Ticket ID: ${ticket.id} from ADO Bug ID: ${adoBug.id}`
+      );
 
-      // this.reportManager.logUpdatedFSTicketFromADOBug(
-      //   ticket,
-      //   adoBug,
-      //   updateBody
-      // );
+      this.reportManager.logUpdatedFSTicketFromADOBug(
+        ticket,
+        adoBug,
+        updateBody
+      );
     } catch (error) {
-      // errorLogger.error("Error in handle FS Ticket update from ADO Bug:", {
-      //   message: JSON.stringify((error as Error).message),
-      //   stack: JSON.stringify((error as Error).stack),
-      // });
-      // this.reportManager.error(
-      //   "SyncEngine - handleFSTicketUpdateFromADOBug",
-      //   `Error updating FS Ticket ID ${ticket.id} from ADO Bug ID ${
-      //     adoBug.id
-      //   }: ${(error as Error).message}`,
-      //   JSON.stringify(error, null, 2)
-      // );
+      errorLogger.error("Error in handle FS Ticket update from ADO Bug:", {
+        message: JSON.stringify((error as Error).message),
+        stack: JSON.stringify((error as Error).stack),
+      });
+      this.reportManager.error(
+        "SyncEngine - handleFSTicketUpdateFromADOBug",
+        `Error updating FS Ticket ID ${ticket.id} from ADO Bug ID ${
+          adoBug.id
+        }: ${(error as Error).message}`,
+        JSON.stringify(error, null, 2)
+      );
     }
   }
 
@@ -335,7 +335,7 @@ export class SyncEngine {
       const adoPatchData: PatchOperation[] = [];
 
       if (!this.fsToAdoMappings || this.fsToAdoMappings.length === 0) {
-        // logger.warn("FS to ADO mappings are not initialized or empty.");
+        logger.warn("FS to ADO mappings are not initialized or empty.");
         return adoPatchData;
       }
 
@@ -365,18 +365,18 @@ export class SyncEngine {
 
       return adoPatchData;
     } catch (error) {
-      // errorLogger.error("Error building FS to ADO single fields:", {
-      //   message: (error as Error).message,
-      //   stack: (error as Error).stack,
-      // });
+      errorLogger.error("Error building FS to ADO single fields:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
 
-      // this.reportManager.error(
-      //   "SyncEngine - buildFSToADOSingleFields",
-      //   `Error building FS to ADO single fields for ticket ID ${ticket.id}: ${
-      //     (error as Error).message
-      //   }`,
-      //   error
-      // );
+      this.reportManager.error(
+        "SyncEngine - buildFSToADOSingleFields",
+        `Error building FS to ADO single fields for ticket ID ${ticket.id}: ${
+          (error as Error).message
+        }`,
+        error
+      );
 
       return [];
     }
@@ -389,7 +389,7 @@ export class SyncEngine {
       const htmlTextArray: string[] = [];
 
       if (!this.repoMappings || this.repoMappings.length === 0) {
-        // logger.warn("Repo mappings are not initialized or empty.");
+        logger.warn("Repo mappings are not initialized or empty.");
         return adoPatchData;
       }
 
@@ -426,18 +426,18 @@ export class SyncEngine {
 
       return [adoPatchEntry];
     } catch (error) {
-      // errorLogger.error("Error building FS to ADO repo fields:", {
-      //   message: (error as Error).message,
-      //   stack: (error as Error).stack,
-      // });
+      errorLogger.error("Error building FS to ADO repo fields:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
 
-      // this.reportManager.error(
-      //   "SyncEngine - buildFSToADORepoFields",
-      //   `Error building FS to ADO repo fields for ticket ID ${ticket.id}: ${
-      //     (error as Error).message
-      //   }`,
-      //   error
-      // );
+      this.reportManager.error(
+        "SyncEngine - buildFSToADORepoFields",
+        `Error building FS to ADO repo fields for ticket ID ${ticket.id}: ${
+          (error as Error).message
+        }`,
+        error
+      );
 
       return [];
     }
@@ -451,7 +451,7 @@ export class SyncEngine {
         !this.productFieldMappings ||
         this.productFieldMappings.length === 0
       ) {
-        // logger.warn("Product Field mappings are not initialized or empty.");
+        logger.warn("Product Field mappings are not initialized or empty.");
         return adoPatchData;
       }
 
@@ -459,7 +459,7 @@ export class SyncEngine {
         !this.productsDataMappings ||
         this.productsDataMappings.length === 0
       ) {
-        // logger.warn("Products Data mappings are not initialized or empty.");
+        logger.warn("Products Data mappings are not initialized or empty.");
         return adoPatchData;
       }
 
@@ -470,9 +470,9 @@ export class SyncEngine {
       );
 
       if (!productDetails) {
-        // logger.warn(
-        //   `No matching product details found for ticket ${ticket.id} with Product Version: ${ticket.custom_fields?.product_version} and Product Name: ${ticket.custom_fields?.product_name}`
-        // );
+        logger.warn(
+          `No matching product details found for ticket ${ticket.id} with Product Version: ${ticket.custom_fields?.product_version} and Product Name: ${ticket.custom_fields?.product_name}`
+        );
         return adoPatchData;
       }
 
@@ -507,18 +507,18 @@ export class SyncEngine {
 
       return adoPatchData;
     } catch (error) {
-      // errorLogger.error("Error building FS to ADO product fields:", {
-      //   message: (error as Error).message,
-      //   stack: (error as Error).stack,
-      // });
+      errorLogger.error("Error building FS to ADO product fields:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
 
-      // this.reportManager.error(
-      //   "SyncEngine - buildFSToADOProductFields",
-      //   `Error building FS to ADO product fields for ticket ID ${ticket.id}: ${
-      //     (error as Error).message
-      //   }`,
-      //   error
-      // );
+      this.reportManager.error(
+        "SyncEngine - buildFSToADOProductFields",
+        `Error building FS to ADO product fields for ticket ID ${ticket.id}: ${
+          (error as Error).message
+        }`,
+        error
+      );
 
       return [];
     }
@@ -548,18 +548,18 @@ export class SyncEngine {
 
       return adoPatchData;
     } catch (error) {
-      // errorLogger.error("Error building FS to ADO agent fields:", {
-      //   message: (error as Error).message,
-      //   stack: (error as Error).stack,
-      // });
+      errorLogger.error("Error building FS to ADO agent fields:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
 
-      // this.reportManager.error(
-      //   "SyncEngine - buildFSToADOAgentFields",
-      //   `Error building FS to ADO agent fields for ticket ID ${ticket.id}: ${
-      //     (error as Error).message
-      //   }`,
-      //   error
-      // );
+      this.reportManager.error(
+        "SyncEngine - buildFSToADOAgentFields",
+        `Error building FS to ADO agent fields for ticket ID ${ticket.id}: ${
+          (error as Error).message
+        }`,
+        error
+      );
 
       return [];
     }
@@ -583,17 +583,17 @@ export class SyncEngine {
       }
       return adoPatchData;
     } catch (error) {
-      // errorLogger.error("Error building FS to ADO requester fields:", {
-      //   message: (error as Error).message,
-      //   stack: (error as Error).stack,
-      // });
-      // this.reportManager.error(
-      //   "SyncEngine - buildFSToADORequesterFields",
-      //   `Error building FS to ADO requester fields for ticket ID ${
-      //     ticket.id
-      //   }: ${(error as Error).message}`,
-      //   error
-      // );
+      errorLogger.error("Error building FS to ADO requester fields:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+      this.reportManager.error(
+        "SyncEngine - buildFSToADORequesterFields",
+        `Error building FS to ADO requester fields for ticket ID ${
+          ticket.id
+        }: ${(error as Error).message}`,
+        error
+      );
       return [];
     }
   }
@@ -608,14 +608,14 @@ export class SyncEngine {
       }
 
       if (!this.adoToFsMappings || this.adoToFsMappings.length === 0) {
-        // logger.warn("ADO to FS mappings are not initialized or empty.");
+        logger.warn("ADO to FS mappings are not initialized or empty.");
         return updateBody;
       }
 
       if (!adoBug.fields) {
-        // logger.warn(
-        //   `ADO Bug ${adoBug.id} has no fields. Ticket ID: ${ticket.id}`
-        // );
+        logger.warn(
+          `ADO Bug ${adoBug.id} has no fields. Ticket ID: ${ticket.id}`
+        );
         return updateBody;
       }
 
@@ -656,18 +656,18 @@ export class SyncEngine {
 
       return updateBody;
     } catch (error) {
-      // errorLogger.error("Error building update body FS from ADO Bug:", {
-      //   message: (error as Error).message,
-      //   stack: (error as Error).stack,
-      // });
+      errorLogger.error("Error building update body FS from ADO Bug:", {
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+      });
 
-      // this.reportManager.error(
-      //   "SyncEngine - buildFSUpdateBodyFromADOBug",
-      //   `Error building update body FS from ADO Bug ID ${
-      //     adoBug.id
-      //   } for Ticket ID ${ticket.id}: ${(error as Error).message}`,
-      //   error
-      // );
+      this.reportManager.error(
+        "SyncEngine - buildFSUpdateBodyFromADOBug",
+        `Error building update body FS from ADO Bug ID ${
+          adoBug.id
+        } for Ticket ID ${ticket.id}: ${(error as Error).message}`,
+        error
+      );
 
       return { custom_fields: {} };
     }
@@ -678,9 +678,9 @@ export class SyncEngine {
       const attachments = ticket.attachments;
 
       for (const attachment of attachments) {
-        // logger.info(
-        //   `Uploading attachment ${attachment.name} for FS Ticket ID: ${ticket.id}`
-        // );
+        logger.info(
+          `Uploading attachment ${attachment.name} for FS Ticket ID: ${ticket.id}`
+        );
         const fileBufferResponse = await axios.get(attachment.attachment_url, {
           responseType: "arraybuffer",
           headers: {
@@ -690,29 +690,28 @@ export class SyncEngine {
           },
         });
 
-        logger.debug(`File buffer response`, { fileBufferResponse });
-
-        // const fileBuffer = Buffer.from(fileBufferResponse.data);
+        /** Do NOT uncomment the logger.debug below - SOURCE OF TypeError that happens before the upload starts */
+        // logger.debug(`File buffer response`, { fileBufferResponse });
 
         const uploadResult = await this.ado.uploadAttachment(
           attachment.name,
           attachment.content_type,
           fileBufferResponse.data
         );
-        // logger.info(
-        //   `Uploaded attachment ${attachment.name} to ADO. Attachment ID: ${uploadResult.id}`
-        // );
+        logger.info(
+          `Uploaded attachment ${attachment.name} to ADO. Attachment ID: ${uploadResult.id}`
+        );
 
         await this.ado.attachToWorkItem(adoBug.id, uploadResult.url);
 
-        // logger.info(
-        //   `Attached attachment ${attachment.name} to ADO Bug ID: ${adoBug.id}`
-        // );
+        logger.info(
+          `Attached attachment ${attachment.name} to ADO Bug ID: ${adoBug.id}`
+        );
       }
 
-      // logger.info(
-      //   `✅ Completed uploading and attaching ${attachments.length} files for FS Ticket ID: ${ticket.id}`
-      // );
+      logger.info(
+        `✅ Completed uploading and attaching ${attachments.length} files for FS Ticket ID: ${ticket.id}`
+      );
     } catch (error) {
       console.log("Attach file error...");
       const generatedError = getErrorMessage(
@@ -721,17 +720,17 @@ export class SyncEngine {
       );
       // const flatError = flattedStringify(error);
 
-      console.log(generatedError);
+      // console.log(generatedError);
 
-      // errorLogger.error(
-      //   `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
-      //   generatedError
-      // );
-      // this.reportManager.error(
-      //   "SyncEngine - handleAttachmentUploadAndLinking",
-      //   `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${generatedError}`,
-      //   generatedError
-      // );
+      errorLogger.error(
+        `Error uploading and attaching files for FS Ticket ID: ${ticket.id}`,
+        generatedError
+      );
+      this.reportManager.error(
+        "SyncEngine - handleAttachmentUploadAndLinking",
+        `Error uploading and attaching files for FS Ticket ID ${ticket.id}: ${generatedError}`,
+        generatedError
+      );
     }
   }
 }

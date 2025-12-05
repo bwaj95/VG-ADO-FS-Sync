@@ -162,10 +162,10 @@ export function serializeError(err: any, type: string, source: string) {
         message: flattedStringify(err.message),
       };
 
-      console.log(`|||||||||||||||||||||||||||||||||||||||||||||||||`);
-      console.log([`[serializeError] ${type} from ${source}: `]);
-      console.error(err);
-      console.log(`|||||||||||||||||||||||||||||||||||||||||||||||||`);
+      // console.log(`|||||||||||||||||||||||||||||||||||||||||||||||||`);
+      // console.log([`[serializeError] ${type} from ${source}: `]);
+      // console.error(err);
+      // console.log(`|||||||||||||||||||||||||||||||||||||||||||||||||`);
 
       // DO NOT PARSE OR JSON.STRINGIFY ERROR MESSAGE EVER
       errorLogger.error(
