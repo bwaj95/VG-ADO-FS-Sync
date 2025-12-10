@@ -463,11 +463,18 @@ export class SyncEngine {
         return adoPatchData;
       }
 
-      const productDetails = this.productsDataMappings.find(
-        (prod) =>
-          prod.ProductVersion === ticket.custom_fields?.product_version &&
-          prod.ProductName === ticket.custom_fields?.product_name
-      );
+      const productDetails = this.productsDataMappings.find((prod) => {
+        // prod.ProductVersion === ticket.custom_fields?.product_version &&
+        //   prod.ProductName === ticket.custom_fields?.product_name;
+
+        const ticketVersion = ticket.custom_fields?.product_version ?? "";
+        const ticketName = ticket.custom_fields?.product_name ?? "";
+
+        const versionMatches = ticketVersion.startsWith(prod.ProductVersion);
+        const nameMatches =
+          prod.ProductName.toLowerCase() === ticketName.toLowerCase();
+        return versionMatches && nameMatches;
+      });
 
       if (!productDetails) {
         logger.warn(
