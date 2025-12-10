@@ -15,10 +15,12 @@ export class ReportEmailer {
       },
     });
 
-    const subject = `🔔 FS <--> ADO Sync Report (${new Date().toLocaleString()})`;
+    const subject = `🔔 ${
+      process.env.EMAIL_SUBJECT
+    } (${new Date().toLocaleString()})`;
 
     await transporter.sendMail({
-      from: `"FS <--> ADO Sync" <${process.env.EMAIL_USER}>`,
+      from: `"${process.env.EMAIL_TITLE}" <${process.env.EMAIL_USER}>`,
       to,
       cc: process.env.REPORT_EMAIL_CC ?? "",
       subject,
