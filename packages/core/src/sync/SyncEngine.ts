@@ -467,14 +467,25 @@ export class SyncEngine {
         const ticketVersion = ticket.custom_fields?.product_version ?? "";
         const ticketName = ticket.custom_fields?.product_name ?? "";
 
-        logger.debug(
-          `Ticket ID: ${ticket.id} | TicketVersion ${ticketVersion} | NaME: ${ticketName} | Comparing with Product Version: ${prod?.ProductVersion} | Product Name: ${prod?.ProductName}`
-        );
+        // logger.debug(
+        //   `Ticket ID: ${ticket.id} | TicketVersion ${ticketVersion} | NaME: ${ticketName} | Comparing with Product Version: ${prod?.ProductVersion} | Product Name: ${prod?.ProductName}`
+        // );
 
         const isVersionMatches = ticketVersion.startsWith(prod?.ProductVersion);
         const isNameMatches =
           prod?.ProductName.toLowerCase() === ticketName.toLowerCase();
-        return isVersionMatches && isNameMatches;
+
+        const isProductMatch = isVersionMatches && isNameMatches;
+        // logger.debug(
+        //   `isVersionMatches: ${isVersionMatches} | isNameMatches: ${isNameMatches} | isProductMatch: ${isProductMatch}`
+        // );
+
+        // logger.debug(
+        //   `Product Match Result for Ticket ID ${ticket.id} with Product Version: ${prod?.ProductVersion} and Product Name: ${prod?.ProductName} => ${isProductMatch}`
+        // );
+        // logger.debug(prod);
+
+        return isProductMatch;
       });
 
       if (!productDetails) {
