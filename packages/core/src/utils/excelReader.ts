@@ -23,7 +23,6 @@ import { parse, z } from "zod";
 const requiredSheetNames = [
   "SingleField",
   "Repo",
-  "Query",
   "URL",
   "ProductsFields",
   "ProductsData",
@@ -50,7 +49,6 @@ export function readExcelFile(filePath: string): sheetsDataType {
       singleField: [] as SingleFieldMappingRecord[],
       repo: [] as RepoMappingRecord[],
       url: [] as URLMappingRecord[],
-      query: [] as QueryMappingRecord[],
       productField: [] as ProductFieldMappingRecord[],
       productsData: [] as ProductsDataMappingRecord[],
     };

@@ -464,16 +464,17 @@ export class SyncEngine {
       }
 
       const productDetails = this.productsDataMappings.find((prod) => {
-        // prod.ProductVersion === ticket.custom_fields?.product_version &&
-        //   prod.ProductName === ticket.custom_fields?.product_name;
-
         const ticketVersion = ticket.custom_fields?.product_version ?? "";
         const ticketName = ticket.custom_fields?.product_name ?? "";
 
-        const versionMatches = ticketVersion.startsWith(prod.ProductVersion);
-        const nameMatches =
-          prod.ProductName.toLowerCase() === ticketName.toLowerCase();
-        return versionMatches && nameMatches;
+        logger.debug(
+          `Ticket ID: ${ticket.id} | TicketVersion ${ticketVersion} | NaME: ${ticketName}`
+        );
+
+        const isVersionMatches = ticketVersion.startsWith(prod?.ProductVersion);
+        const isNameMatches =
+          prod?.ProductName.toLowerCase() === ticketName.toLowerCase();
+        return isVersionMatches && isNameMatches;
       });
 
       if (!productDetails) {

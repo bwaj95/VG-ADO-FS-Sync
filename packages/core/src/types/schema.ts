@@ -137,7 +137,6 @@ export type ProductsDataMappingRecord = z.infer<
 export const sheetsDataSchema = z.object({
   singleField: z.array(SingleFieldMappingSchema),
   repo: z.array(RepoMappingSchema),
-  query: z.array(QueryMappingSchema),
   url: z.array(URLMappingSchema),
   productField: z.array(ProductFieldMappingSchema),
   productsData: z.array(ProductsDataMappingSchema),
