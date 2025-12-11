@@ -468,7 +468,7 @@ export class SyncEngine {
         const ticketName = ticket.custom_fields?.product_name ?? "";
 
         logger.debug(
-          `Ticket ID: ${ticket.id} | TicketVersion ${ticketVersion} | NaME: ${ticketName}`
+          `Ticket ID: ${ticket.id} | TicketVersion ${ticketVersion} | NaME: ${ticketName} | Comparing with Product Version: ${prod?.ProductVersion} | Product Name: ${prod?.ProductName}`
         );
 
         const isVersionMatches = ticketVersion.startsWith(prod?.ProductVersion);
